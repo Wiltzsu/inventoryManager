@@ -12,7 +12,8 @@ try:
 
     # Your database operations go here
     category = input('Enter category name: ')
-    db.category.insert_one({'category': category})
+    description = input('Enter description: ')
+    db.category.insert_one({'category': category, 'description': description})
 
 except Exception as e:
     print(e)
