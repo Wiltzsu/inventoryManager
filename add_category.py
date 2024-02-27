@@ -10,7 +10,7 @@ try:
     # Select the database. If it doesn't exist, create it on first document insertion
     db = client.inventory
 
-    # Your database operations go here
+    # Ask user for category and description and add them to the database
     category = input('Enter category name: ')
     description = input('Enter description: ')
     db.category.insert_one({'category': category, 'description': description})
