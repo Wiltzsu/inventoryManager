@@ -14,7 +14,7 @@ try:
     name = input('Enter supplier name: ')
     contact = input('Enter supplier contact: ')
     phone = input('Enter supplier phone: ')
-    db.supplier.insert_one({'category': name, 'description': contact, 'phone': phone})
+    db.supplier.insert_one({'name': name, 'description': contact, 'phone': phone})
 
 except Exception as e:
     print(e)
