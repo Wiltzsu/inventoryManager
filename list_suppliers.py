@@ -14,7 +14,7 @@ try:
 
     # Print out each supplier
     for supplier in suppliers:
-        print(supplier['_id'], supplier['name'], supplier['description'], supplier['phone'])
+        print(supplier['_id'], supplier['name'], supplier['contact'], supplier['phone'])
 
 except Exception as e:
     print(e)
