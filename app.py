@@ -28,12 +28,16 @@ def index():
     finally:
         client.close()
 
+# Define a route for the endpoint '/items' that will display the items in the inventory.
 @app.route('/items')
 def show_items():
     client = MongoClient(MONGO_URI)
     db = client.inventory
     try:
+        # Query the 'item' collection in the database to find all documents (items),
+        # sort them in descending order by their '_id' to show the newest items first.
         items_cursor = db.item.find().sort('_id', -1)
+        # Convert the cursor returned by the find() method into a list of items.
         items = list(items_cursor)
     except Exception as e:
         print(e)
@@ -43,25 +47,26 @@ def show_items():
 
     return render_template('items.html', items=items)
 
-# Delete an item
-@app.route('/bulk-action', methods=['POST'])
-def handle_bulk_action():
-    action = request.form.get('action')
-    item_ids = request.form.getlist('item_ids')  # Get list of selected item IDs
 
-    if action == 'delete':
-        try:
-            client = MongoClient(MONGO_URI)
-            db = client.inventory
-            for item_id in item_ids:
-                db.item.delete_one({'_id': ObjectId(item_id)})
-        except Exception as e:
-            print(e)
-        finally:
-            client.close()
+# Route for deleting an item
+@app.route('/delete-items', methods=['POST'])
+def delete_items():
+    # Retrieve a list of item IDs to delete from the form
+    item_ids_to_delete = request.form.getlist('item_ids')
 
-    # Redirect back to the items list or handle other actions accordingly
-    return redirect(url_for('show_items'))
+    client = MongoClient(MONGO_URI)
+    db = client.inventory
+
+    try:
+        #Convert string IDs to ObjectId and delete items from the database
+        for item_id in item_ids_to_delete:
+            db.item.delete_one({'_id': ObjectId(item_id)})
+        # Redirect to the items list page after deletion
+        return redirect(url_for('show_items'))
+    except Exception as e:
+        print(e)
+    finally:
+        client.close()
 
 # Route for adding an item, which accepts GET and POST requests
 @app.route('/add-item', methods=['GET', 'POST'])
