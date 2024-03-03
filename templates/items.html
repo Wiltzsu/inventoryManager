@@ -22,7 +22,7 @@
                     <a class="nav-link" href="/items">Items</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Categories</a>
+                    <a class="nav-link" href="/update-item/">Categories</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Suppliers</a>
@@ -62,6 +62,12 @@
                                 <td>{{ item['quantity'] }}</td>
                                 <td>{{ item['categoryId'] }}</td>
                                 <td>{{ item['supplierId'] }}</td>
+        <td>
+            <!-- Update button form -->
+            <form action="{{ url_for('update_item', item_id=item['_id']) }}" method="get">
+                <button type="submit" class="btn btn-sm btn-info">Update</button>
+            </form>
+        </td>
                             </tr>
                             {% endfor %}
                         </tbody>

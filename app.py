@@ -99,6 +99,43 @@ def add_item():
     # If it's a GET request, just render the empty form
     return render_template('add_item.html')
 
+@app.route('/update-item/<item_id>', methods=['GET', 'POST'])
+def update_item(item_id):
+    client = MongoClient(MONGO_URI)
+    db = client.inventory
+
+    # If it's a POST request, process the form data
+    if request.method == 'POST':
+        try:
+            # Prepare the update data
+            update_data = {
+                'name': request.form['name'],
+                'description': request.form['description'],
+                'quantity': int(request.form['quantity']),
+                'categoryId': request.form['categoryId'],
+                'supplierId': request.form['supplierId']
+            }
+
+            # Find the item by ID and update it with the new data
+            db.item.update_one({'_id': ObjectId(item_id)}, {'$set': update_data})
+            return redirect(url_for('show_items'))
+
+        except Exception as e:
+            print(e)
+        finally:
+            client.close()
+
+    else:
+        # If it's a GET request, find the item by ID and render the form with the item's current data
+        try:
+            item_to_update = db.item.find_one({'_id': ObjectId(item_id)})
+        except Exception as e:
+            print(e)
+            item_to_update = None
+        finally:
+            client.close()
+
+        return render_template('update_item.html', item=item_to_update)
 
 if __name__ == '__main__':
     app.run(debug=True)
