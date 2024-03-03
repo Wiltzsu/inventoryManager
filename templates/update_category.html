@@ -33,29 +33,15 @@
 
     <div class="container">
         <h2>Update Item</h2>
-        <a href="/items" class="btn btn-primary">Back</a>
-        <form action="{{ url_for('update_item', item_id=item['_id']) }}" method="post">
+        <a href="/categories" class="btn btn-primary">Back</a>
+        <form action="{{ url_for('update_category', category_id=category['_id']) }}" method="post">
             <div class="form-group">
-                <label for="itemName">Name</label>
-                <input type="text" class="form-control" id="itemName" name="name" value="{{ item['name'] }}" required>
+                <label for="categoryName">Name</label>
+                <input type="text" class="form-control" id="categoryName" name="category" value="{{ category['category'] }}" required>
             </div>
             <div class="form-group">
-                <label for="itemDescription">Description</label>
-                <textarea class="form-control" id="itemDescription" name="description" rows="3" required>{{ item['description'] }}</textarea>
-            </div>
-            <div class="form-group">
-                <label for="itemQuantity">Quantity</label>
-                <input type="number" class="form-control" id="itemQuantity" name="quantity" value="{{ item['quantity'] }}" required>
-            </div>
-            <div class="form-group">
-                <label for="categoryId">Category ID</label>
-                <!-- Ensure the categoryId is converted to string -->
-                <input type="text" class="form-control" id="categoryId" name="categoryId" value="{{ item['categoryId']|string }}" required>
-            </div>
-            <div class="form-group">
-                <label for="supplierId">Supplier ID</label>
-                <!-- Ensure the supplierId is converted to string -->
-                <input type="text" class="form-control" id="supplierId" name="supplierId" value="{{ item['supplierId']|string }}" required>
+                <label for="categoryDescription">Description</label>
+                <textarea class="form-control" id="categoryDescription" name="description" rows="3" required>{{ category['description'] }}</textarea>
             </div>
             <button type="submit" class="btn btn-primary">Update</button>
         </form>

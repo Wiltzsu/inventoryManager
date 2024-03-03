@@ -47,6 +47,24 @@ def show_items():
 
     return render_template('items.html', items=items)
 
+@app.route('/categories')
+def show_categories():
+    client = MongoClient(MONGO_URI)
+    db = client.inventory
+    try:
+        # Query the 'category' collection in the database to find all documents (categories),
+        # sort them in descending order by their '_id' to show the newest items first.
+        category_cursor = db.category.find().sort('_id', -1)
+        # Convert the cursor returned by the find() method into a list of items.
+        categories = list(category_cursor)
+    except Exception as e:
+        print(e)
+        categories = []  # Provide an empty list in case of an error
+    finally:
+        client.close()
+
+    return render_template('categories.html', categories=categories)
+
 
 # Route for deleting an item
 @app.route('/delete-items', methods=['POST'])
@@ -63,6 +81,26 @@ def delete_items():
             db.item.delete_one({'_id': ObjectId(item_id)})
         # Redirect to the items list page after deletion
         return redirect(url_for('show_items'))
+    except Exception as e:
+        print(e)
+    finally:
+        client.close()
+
+# Route for deleting categories
+@app.route('/delete-categories', methods=['POST'])
+def delete_categories():
+    # Retrieve a list of category IDs to delete from the form
+    category_ids_to_delete = request.form.getlist('category_ids')
+
+    client = MongoClient(MONGO_URI)
+    db = client.inventory
+
+    try:
+        #Convert string IDs to ObjectId and delete categories from the database
+        for category_id in category_ids_to_delete:
+            db.category.delete_one({'_id': ObjectId(category_id)})
+        # Redirect to the items list page after deletion
+        return redirect(url_for('show_categories'))
     except Exception as e:
         print(e)
     finally:
@@ -99,6 +137,35 @@ def add_item():
     # If it's a GET request, just render the empty form
     return render_template('add_item.html')
 
+# Route for adding a category, which accepts GET and POST requests
+@app.route('/add-category', methods=['GET', 'POST'])
+def add_category():
+    # Check if current request is a POST requests (form submission)
+    if request.method == 'POST':
+        try:
+            client = MongoClient(MONGO_URI) # Establish database connection
+            db = client.inventory # Access 'inventory' database
+
+            # Create a new category document from the form data
+            new_category = {
+                'category': request.form['category'],
+                'description': request.form['description'],
+            }
+
+            # Insert the new item into the database
+            db.category.insert_one(new_category)
+
+            # Redirect to page with all categories
+            return redirect(url_for('show_categories'))
+        except Exception as e:
+            print(e)
+            # Handle the error, possibly showing a user-friendly message
+        finally:
+            client.close()
+    # If it's a GET request, just render the empty form
+    return render_template('add_category.html')
+
+# Route for updating items
 @app.route('/update-item/<item_id>', methods=['GET', 'POST'])
 def update_item(item_id):
     client = MongoClient(MONGO_URI)
@@ -136,6 +203,46 @@ def update_item(item_id):
             client.close()
 
         return render_template('update_item.html', item=item_to_update)
+
+    return redirect(url_for('show_items'))
+
+# Route for updating categories
+@app.route('/update-category/<category_id>', methods=['GET', 'POST'])
+def update_category(category_id):
+    client = MongoClient(MONGO_URI)
+    db = client.inventory
+
+    # If it's a POST request, process the form data
+    if request.method == 'POST':
+        try:
+            # Prepare the update data
+            update_data = {
+                'category': request.form['category'],
+                'description': request.form['description'],
+            }
+
+            # Find the item by ID and update it with the new data
+            db.category.update_one({'_id': ObjectId(category_id)}, {'$set': update_data})
+            return redirect(url_for('show_categories'))
+
+        except Exception as e:
+            print(e)
+        finally:
+            client.close()
+
+    else:
+        # If it's a GET request, find the category by ID and render the form with the category's current data
+        try:
+            category_to_update = db.category.find_one({'_id': ObjectId(category_id)})
+        except Exception as e:
+            print(e)
+            category_to_update = None
+        finally:
+            client.close()
+
+        return render_template('update_category.html', category=category_to_update)
+
+    return redirect(url_for('show_items'))
 
 if __name__ == '__main__':
     app.run(debug=True)
