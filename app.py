@@ -123,6 +123,26 @@ def delete_categories():
     finally:
         client.close()
 
+# Route for deleting suppliers
+@app.route('/delete-suppliers', methods=['POST'])
+def delete_suppliers():
+    # Retrieve a list of supplier IDs to delete from the form
+    supplier_ids_to_delete = request.form.getlist('supplier_ids')
+
+    client = MongoClient(MONGO_URI)
+    db = client.inventory
+
+    try:
+        #Convert string IDs to ObjectId and delete suppliers from the database
+        for supplier_id in supplier_ids_to_delete:
+            db.supplier.delete_one({'_id': ObjectId(supplier_id)})
+        # Redirect to the items list page after deletion
+        return redirect(url_for('show_suppliers'))
+    except Exception as e:
+        print(e)
+    finally:
+        client.close()
+
 # Route for adding an item, which accepts GET and POST requests
 @app.route('/add-item', methods=['GET', 'POST'])
 def add_item():
@@ -181,6 +201,35 @@ def add_category():
             client.close()
     # If it's a GET request, just render the empty form
     return render_template('add_category.html')
+
+# Route for adding a supplier, which accepts GET and POST requests
+@app.route('/add-supplier', methods=['GET', 'POST'])
+def add_supplier():
+    # Check if current request is a POST requests (form submission)
+    if request.method == 'POST':
+        try:
+            client = MongoClient(MONGO_URI) # Establish database connection
+            db = client.inventory # Access 'inventory' database
+
+            # Create a new supplier document from the form data
+            new_supplier = {
+                'name': request.form['name'],
+                'contact': request.form['contact'],
+                'phone': request.form['phone']
+            }
+
+            # Insert the new item into the database
+            db.supplier.insert_one(new_supplier)
+
+            # Redirect to page with all suppliers
+            return redirect(url_for('show_suppliers'))
+        except Exception as e:
+            print(e)
+            # Handle the error, possibly showing a user-friendly message
+        finally:
+            client.close()
+    # If it's a GET request, just render the empty form
+    return render_template('add_supplier.html')
 
 # Route for updating items
 @app.route('/update-item/<item_id>', methods=['GET', 'POST'])
