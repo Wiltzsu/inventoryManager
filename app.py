@@ -65,6 +65,23 @@ def show_categories():
 
     return render_template('categories.html', categories=categories)
 
+@app.route('/suppliers')
+def show_suppliers():
+    client = MongoClient(MONGO_URI)
+    db = client.inventory
+    try:
+        # Query the 'supplier' collection in the database to find all documents (suppliers),
+        # sort them in descending order by their '_id' to show the newest items first.
+        suppliers_cursor = db.supplier.find().sort('_id', -1)
+        # Convert the cursor returned by the find() method into a list of items.
+        suppliers = list(suppliers_cursor)
+    except Exception as e:
+        print(e)
+        suppliers = []  # Provide an empty list in case of an error
+    finally:
+        client.close()
+
+    return render_template('suppliers.html', suppliers=suppliers)
 
 # Route for deleting an item
 @app.route('/delete-items', methods=['POST'])
