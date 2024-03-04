@@ -310,5 +310,44 @@ def update_category(category_id):
 
     return redirect(url_for('show_items'))
 
+# Route for updating suppliers
+@app.route('/update-supplier/<supplier_id>', methods=['GET', 'POST'])
+def update_supplier(supplier_id):
+    client = MongoClient(MONGO_URI)
+    db = client.inventory
+
+    # If it's a POST request, process the form data
+    if request.method == 'POST':
+        try:
+            # Prepare the update data
+            update_data = {
+                'name': request.form['name'],
+                'contact': request.form['contact'],
+                'phone': request.form['phone']
+            }
+
+            # Find the item by ID and update it with the new data
+            db.supplier.update_one({'_id': ObjectId(supplier_id)}, {'$set': update_data})
+            return redirect(url_for('show_suppliers'))
+
+        except Exception as e:
+            print(e)
+        finally:
+            client.close()
+
+    else:
+        # If it's a GET request, find the category by ID and render the form with the category's current data
+        try:
+            supplier_to_update = db.supplier.find_one({'_id': ObjectId(supplier_id)})
+        except Exception as e:
+            print(e)
+            supplier_to_update = None
+        finally:
+            client.close()
+
+        return render_template('update_supplier.html', supplier=supplier_to_update)
+
+    return redirect(url_for('show_suppliers'))
+
 if __name__ == '__main__':
     app.run(debug=True)

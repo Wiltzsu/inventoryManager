@@ -57,6 +57,7 @@
                                 <td>{{ category['_id'] }}</td>
                                 <td>{{ category['category'] }}</td>
                                 <td>{{ category['description'] }}</td>
+                                <td><a href="{{ url_for('update_category', category_id=category['_id']) }}" class="btn btn-sm btn-info">Update</a></td>
                             </tr>
                             {% endfor %}
                         </tbody>

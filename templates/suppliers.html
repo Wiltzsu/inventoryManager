@@ -48,6 +48,7 @@
                                 <th>Name</th>
                                 <th>Contact</th>
                                 <th>Phone</th>
+                                <th>Update</th>
 
                             </tr>
                         </thead>
@@ -59,6 +60,7 @@
                                 <td>{{ supplier['name'] }}</td>
                                 <td>{{ supplier['contact'] }}</td>
                                 <td>{{ supplier['phone'] }}</td>
+                                <td><a href="{{ url_for('update_supplier', supplier_id=supplier['_id']) }}" class="btn btn-sm btn-info">Update</a></td>
                             </tr>
                             {% endfor %}
                         </tbody>
