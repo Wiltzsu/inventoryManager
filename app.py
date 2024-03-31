@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 from pymongo import MongoClient
 from bson import ObjectId
 from db_config import MONGO_URI
@@ -348,6 +348,26 @@ def update_supplier(supplier_id):
         return render_template('update_supplier.html', supplier=supplier_to_update)
 
     return redirect(url_for('show_suppliers'))
+
+@app.route('/api/items')
+def api_items():
+    client = MongoClient(MONGO_URI)
+    db = client.inventory
+
+    try:
+        # Find all documents in the 'item' collection
+        items_cursor = db.item.find()
+        # Iterate through the cursor to create a list of items,
+        # converting each item's '_id' from ObjectId to a string for JSON to be able to read them
+        # and unpacking the rest of the item's fields
+        items = [{item['_id'].str(): str(item['_id']), **item} for item in items_cursor]
+        # Return the list of items as a JSON response
+        return jsonify(items=items)
+    except Exception as e:
+        print(e)
+        return jsonify(error=str(e)), 500
+    finally:
+        client.close()
 
 if __name__ == '__main__':
     app.run(debug=True)
